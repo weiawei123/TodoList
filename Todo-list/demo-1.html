@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./sui.min.css">
+  <title>Document</title>
+  <style>
+    .btn-box {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .btn-box button {
+      margin-left: 10px;
+    }
+    .model {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.6);
+      z-index: 10;
+      color: white;
+    }
+    .tabbar-box {
+      position: fixed;
+      width: 100%;
+      height: 60px;
+      left: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: space-around;
+    }
+    .tabbar-box .circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+    }
+    .theme-primary {
+      border-color: rgb(82, 223, 248);
+    }
+    .theme-success {
+      border-color: rgb(82, 248, 90);
+    }
+    .theme-danger {
+      border-color: rgb(248, 82, 90);
+    }
+    .theme-primary.theme-fill {
+      background-color: rgb(82, 223, 248);
+      color: white;
+    }
+    .theme-success.theme-fill {
+      background-color: rgb(82, 248, 90);
+      color: white;
+    }
+    .theme-danger.theme-fill {
+      background-color: rgb(248, 82, 90);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    
+    <header class="bar bar-nav">
+      <h1 class="title">标题</h1>
+    </header>  
+    <div class="content">
+      <div class="content-block-title">简单卡片</div>
+      <div class="card" v-for="todo in computedTodo">
+        <div class="card-content">
+          <div class="card-content-inner">
+            <p>{{ todo.title }}</p>
+            <div class="btn-box">
+              <button 
+              class="button button-success" 
+              :class='{"button-fill":todo.isFinished}'
+              @click="todo.isFinished=!todo.isFinished"
+              >
+              完成<span class="icon icon-check"></span></button>
+              <button class="button button-danger" @click="removeTodo(todo)">删除<span class="icon icon-remove"></span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="model" v-if="isShow" @click="isShow=false">
+      <p>确定要删除吗</p>
+      <button @click="remove(prepareRemoveId)">确定</button>
+    </div>
+
+    <div class="tabbar-box">
+      <!-- <button class="circle theme-primary theme-fill">全部</button> -->
+      <!-- <button class="circle theme-success">已完成</button> -->
+      <!-- <button class="circle theme-danger">未完成</button> -->
+
+      <button 
+      class="circle"
+      v-for="item in btns"
+      :class="[item.theme,{'theme-fill':item.title === type}]"
+      @click="type=item.title"
+      >
+      {{item.title}}
+      </button>
+    </div>
+  </div>
+</body>
+</html>
+<script src="./vue.js"></script>
+<script>
+  new Vue({
+    el:'#root',
+    data:{
+      todos:[
+        {id:1,title:'这是一条信息',isFinished:true},
+        {id:2,title:'这是二条信息',isFinished:false}
+      ],
+      isShow:false,
+      prepareRemoveId:'',   // 准备要删除的id
+      type:'全部',
+      btns:[
+        {id:1,title:'全部',theme:'theme-primary'},
+        {id:1,title:'已完成',theme:'theme-success'},
+        {id:1,title:'未完成',theme:'theme-danger'}
+      ]
+    },
+
+
+
+    methods: { 
+      remove(id) {
+        this.todos = this.todos.filter(_=>_.id !== id) 
+      },
+      removeTodo({id,isFinished}) { 
+        if(isFinished) {
+          this.remove(id)
+        }else {
+          this.isShow = true
+          this.prepareRemoveId = id
+        }
+      },
+    },
+    computed:{
+      // 当type改变了，需要让todos数组根据不同type进行筛选过滤 
+      computedTodo() {
+        switch(this.type) {
+          case '全部':
+            return this.todos
+          case '已完成':
+            return this.todos.filter(item=>item.isFinished === true)
+          case '未完成':
+            return this.todos.filter(item=>item.isFinished === false)
+        }
+      }
+    }
+  })
+</script>
